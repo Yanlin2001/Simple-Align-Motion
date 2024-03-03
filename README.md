@@ -21,6 +21,11 @@ Deep learning has led to a dramatic leap on Single Image Super-Resolution (SISR)
 cd ./dataset
 python add_degradations.py
 ```
+
+3. Download [pretrained models](https://drive.google.com/drive/folders/17vZcYYS8IVxFn2Its_LnfXZvgN1TL19b) and move them to  `./pretrained_models/` folder. 
+
+   To remain the setting of Real-ESRGAN, we use the GT USM (sharpness) in the paper. But we also provide the models without USM, the improvement is basically same.
+
 4. Run the testing commands.
 ```
 CUDA_VISIBLE_DEVICES=1 python realesrgan/test.py -opt options/test/test_realsrresnet.yml
