@@ -57,7 +57,7 @@ gray_noise_prob2: 0.4
 jpeg_range2: [30, 95]
 
 gt_size: 128
-queue_size: 16
+queue_size: 32
 
 # dataset and data loader settings
 datasets:
@@ -93,8 +93,8 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 2
-    batch_size_per_gpu: 8
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 16
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
