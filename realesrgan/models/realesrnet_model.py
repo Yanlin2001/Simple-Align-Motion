@@ -261,17 +261,18 @@ class RealESRNetModel(SRModel):
                     K_data = K_data * mask
 
                 out = torch.abs(torch.fft.ifft2(torch.fft.ifftshift(K_data, dim=(-2, -1)), dim=(-2, -1)))
-                print(out.shape)
+                #print(out.shape) # torch.Size([8, 400, 400])
                 # 增加通道维度
                 out = torch.unsqueeze(out, dim=1)
-                print(out.shape)
+                #print(out.shape) # torch.Size([8, 1, 400, 400])
                 # 增加通道数
                 out = out.repeat(1, 3, 1, 1)
-                print(out.shape)
+                #print(out.shape) # torch.Size([8, 3, 400, 400])
                 new_out.append(out)
-                print(len(new_out))
+                #print(len(new_out)) # 1
+
             out = torch.concat(new_out)
-            print(out.shape)
+            #print(out.shape) # torch.Size([8, 3, 400, 400])
             self.gt = self.gt.repeat(expand, 1, 1, 1)
             # clamp and round
             self.lq = torch.clamp((out * 255.0).round(), 0, 255) / 255.
@@ -286,6 +287,38 @@ class RealESRNetModel(SRModel):
             self.lq = data['lq'].to(self.device)
             if 'gt' in data:
                 self.gt = data['gt'].to(self.device)
+
+        
+        import datetime
+        import os
+        import torchvision.transforms as transforms
+
+        # Assuming self.lq and self.gt are PyTorch tensors with shape (batch_size, channels, height, width)
+        batch_size = self.lq.size(0)
+
+        # Get current time
+        current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+        # Create a folder to save images
+        folder_path = f"/kaggle/working/images_{current_time}"
+        os.makedirs(folder_path, exist_ok=True)
+
+        for sample_index in range(batch_size):
+            # Convert to PIL Image
+            lq_image = transforms.ToPILImage()(self.lq[sample_index].cpu())
+            gt_image = transforms.ToPILImage()(self.gt[sample_index].cpu())
+
+            # Save image with current time and index as filename
+            save_path = os.path.join(folder_path, f"lq_image_{current_time}_{sample_index}.png")
+            save_path2 = os.path.join(folder_path, f"gt_image_{current_time}_{sample_index}.png")
+            lq_image.save(save_path)
+            gt_image.save(save_path2)
+
+            print(f"Image saved at: {save_path}")
+            print(f"Image saved at: {save_path2}")
+
+        print(f"All images saved in folder: {folder_path}")
+        
 
     def nondist_validation(self, dataloader, current_iter, tb_logger, save_img):
         # do not use the synthetic process during validation
