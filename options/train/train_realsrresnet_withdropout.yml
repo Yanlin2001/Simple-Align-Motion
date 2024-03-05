@@ -4,6 +4,7 @@ model_type: RealESRNetModel
 scale: 1
 num_gpu: auto
 manual_seed: 0
+weight: 1e0
 
 # network structures
 network_g:
