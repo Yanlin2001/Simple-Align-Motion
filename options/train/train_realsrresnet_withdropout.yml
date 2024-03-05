@@ -122,9 +122,8 @@ train:
 # Uncomment these for validation
 # validation settings
 val:
-  val_freq: !!float 5000
+  val_freq: !!float 5e3
   save_img: True
-
   metrics:
     psnr:
       type: calculate_psnr
