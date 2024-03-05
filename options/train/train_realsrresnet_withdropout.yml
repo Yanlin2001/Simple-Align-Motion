@@ -102,7 +102,7 @@ datasets:
   val:
     name: validation
     type: PairedImageDataset
-    dataroot_gt: datasets/motion01/run02/motion
+    dataroot_gt: datasets/motion01/run02/gt
     dataroot_lq: datasets/motion01/run02/acc4
     io_backend:
       type: disk
@@ -144,8 +144,12 @@ val:
   val_freq: !!float 5e3
   save_img: True
   metrics:
-    psnr:
+    psnr: # metric name
       type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
       crop_border: 4
       test_y_channel: false
 
