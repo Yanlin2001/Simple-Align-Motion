@@ -1,19 +1,18 @@
 # general settings
-name: train_RealSRResNetx4-reg
+name: train_RealSRResNetx4_dropoutlast_channel07
 model_type: RealESRNetModel
-scale: 1
-num_gpu: 1
+scale: 4
+num_gpu: 2
 manual_seed: 0
-weight: 1e0
 
 # network structures
 network_g:
-  type: MSRResNet_detailss
+  type: MSRResNet_details_dropoutlast_channel07
   num_in_ch: 3
   num_out_ch: 3
   num_feat: 64
   num_block: 16
-  upscale: 1
+  upscale: 4
 
 # ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
 gt_usm: True  # USM the ground-truth
@@ -39,15 +38,15 @@ gray_noise_prob2: 0.4
 jpeg_range2: [30, 95]
 
 gt_size: 128
-queue_size: 32
+queue_size: 16
 
 # dataset and data loader settings
 datasets:
   train:
-    name: DIV2K_reg
+    name: DIV2K
     type: RealESRGANDataset
-    dataroot_gt: datasets/motion01/train
-    meta_info: datasets/motion01/meta_info/meta_info_test.txt
+    dataroot_gt: /code/RDSR/dataset/DIV2K/DIV2K_train_HR_sub
+    meta_info: /code/RDSR/dataset/DIV2K/meta_info_DIV2K800sub_GT.txt
     io_backend:
       type: disk
 
@@ -75,19 +74,20 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 6
-    batch_size_per_gpu: 16
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 8
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
   # Uncomment these for validation
   val:
-    name: run02_acc4
+    name: validation
     type: PairedImageDataset
-    dataroot_gt: datasets/motion01/run02/motion
-    dataroot_lq: datasets/motion01/run02/acc4
+    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
+    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LRbicx4
     io_backend:
       type: disk
+
 
 # path
 path:
@@ -107,10 +107,10 @@ train:
 
   scheduler:
     type: CosineAnnealingRestartLR
-    periods: [15000, 30000]
+    periods: [250000, 500000]
     restart_weights: [1,1]
 
-  total_iter: 30000
+  total_iter: 500000
   warmup_iter: -1  # no warm up
 
   # losses
@@ -124,7 +124,6 @@ train:
 val:
   val_freq: !!float 5e3
   save_img: True
-
   metrics:
     psnr:
       type: calculate_psnr

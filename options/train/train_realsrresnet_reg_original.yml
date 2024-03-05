@@ -1,7 +1,7 @@
 # general settings
 name: train_RealSRResNetx4-reg
 model_type: RealESRNetModel
-scale: 1
+scale: 4
 num_gpu: 1
 manual_seed: 0
 weight: 1e0
@@ -13,7 +13,7 @@ network_g:
   num_out_ch: 3
   num_feat: 64
   num_block: 16
-  upscale: 1
+  upscale: 4
 
 # ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
 gt_usm: True  # USM the ground-truth
@@ -46,8 +46,8 @@ datasets:
   train:
     name: DIV2K_reg
     type: RealESRGANDataset
-    dataroot_gt: datasets/motion01/train
-    meta_info: datasets/motion01/meta_info/meta_info_test.txt
+    dataroot_gt: /code/RDSR/dataset/DIV2K/DIV2K_train_HR_sub
+    meta_info: /code/RDSR/dataset/DIV2K/meta_info_DIV2K800sub_GT.txt
     io_backend:
       type: disk
 
@@ -82,10 +82,26 @@ datasets:
 
   # Uncomment these for validation
   val:
-    name: run02_acc4
+    name: bicubic
     type: PairedImageDataset
-    dataroot_gt: datasets/motion01/run02/motion
-    dataroot_lq: datasets/motion01/run02/acc4
+    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
+    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LR_degra/bicubic
+    io_backend:
+      type: disk
+
+  val_2:
+    name: blur2_bicubic
+    type: PairedImageDataset
+    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
+    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LR_degra/blur2_bicubic
+    io_backend:
+      type: disk
+
+  val_3:
+    name: blur2_bicubic_noise20_jepg50
+    type: PairedImageDataset
+    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
+    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LR_degra/blur2_bicubic_noise20_jepg50
     io_backend:
       type: disk
 
@@ -107,10 +123,10 @@ train:
 
   scheduler:
     type: CosineAnnealingRestartLR
-    periods: [15000, 30000]
+    periods: [250000, 500000]
     restart_weights: [1,1]
 
-  total_iter: 30000
+  total_iter: 500000
   warmup_iter: -1  # no warm up
 
   # losses
