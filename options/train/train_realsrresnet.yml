@@ -1,8 +1,8 @@
 # general settings
 name: train_RealSRResNetx4
 model_type: RealESRNetModel
-scale: 4
-num_gpu: 2
+scale: 1
+num_gpu: 1
 manual_seed: 0
 weight: 1e3
 
@@ -13,7 +13,7 @@ network_g:
   num_out_ch: 3
   num_feat: 64
   num_block: 16
-  upscale: 4
+  upscale: 1
 
 # ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
 gt_usm: True  # USM the ground-truth
