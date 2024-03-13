@@ -359,9 +359,13 @@ class RealESRNetModel(SRModel):
             x2 = x2 - x2.mean(0, keepdims=True)
             l_reg, n_reg = torch.tensor(0).to(out), torch.tensor(0).to(out)
             for u, v in zip(x1, x2):
+                print('u:', u.shape, 'v:', v.shape)
                 out_ = torch.cat([u, v])
+                print('cat_out:', out_.shape)
                 nolinear_out = random_fourier_features_gpu(out_).reshape(out_.shape[0], -1)
+                print('nolinear_out:', nolinear_out.shape)
                 a, b = torch.chunk(nolinear_out, 2, 0)
+                print('a:', a.shape, 'b:', b.shape)
                 l_reg += self.weight * reg(u, v)
                 n_reg += self.weight * reg(a, b)
             loss_dict['l_reg'] = l_reg
