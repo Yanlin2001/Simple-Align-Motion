@@ -61,10 +61,10 @@ queue_size: 32
 # dataset and data loader settings
 datasets:
   train:
-    name: DIV2K
+    name: DIV2K_reg
     type: RealESRGANDataset
-    dataroot_gt: /code/RDSR/dataset/DIV2K/DIV2K_train_HR_sub
-    meta_info: /code/RDSR/dataset/DIV2K/meta_info_DIV2K800sub_GT.txt
+    dataroot_gt: datasets/motion01/train
+    meta_info: datasets/motion01/meta_info/meta_info_test.txt
     io_backend:
       type: disk
 
@@ -101,8 +101,8 @@ datasets:
   val:
     name: validation
     type: PairedImageDataset
-    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
-    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LRbicx4
+    dataroot_gt: datasets/motion01/run02/gt
+    dataroot_lq: datasets/motion01/run02/acc4
     io_backend:
       type: disk
 
