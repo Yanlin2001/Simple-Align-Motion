@@ -1,0 +1,168 @@
+# general settings
+name: train_RealSRResNetx1W100-reg
+model_type: RealESRNetModel
+scale: 1
+num_gpu: 1
+manual_seed: 0
+weight: 1e2
+
+# network structures
+network_g:
+  type: MSRResNet_detailss
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 16
+  upscale: 1
+
+# ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
+gt_usm: True  # USM the ground-truth
+#To remain the setting of Real-ESRGAN, we use the GT USM (sharpness) in the paper. But we also provide the trained models without USM, the improvement is basically same.
+
+# Motion process
+rician_noise_prob: 0.7
+rician_noise_range: [0.01, 0.1]
+rot90_prob: 1.0 # 旋转90度概率
+horizontal_mask_prob: 0.0
+undersample_prob: 0.8 # 降采样概率
+center_fraction_range: [0.05, 0.15] # 中心部分采样范围
+acceleration_range: [2, 6] # 加速范围
+rounds_range: [51,251] # 运动阶段数
+rotate_prob: 0.5 # 旋转概率
+rotate_range: [-1, 1] # 旋转角度范围
+translation_prob: [0.2, 0.2, 0.6] # un-down, left-right, keep
+translation_range: [-0.01, 0.01]  # 平移范围
+perspective_prob: [0.0, 0.0, 1.0]  # un-down, left-right, keep
+perspective_range: [-0.001, 0.001] # 透视范围
+stretch_prob: 0.0 # 伸缩概率
+stretch_range: [-0.001, 0.001] # 伸缩范围
+
+# the first degradation process
+resize_prob: [0.2, 0.7, 0.1]  # up, down, keep
+resize_range: [0.15, 1.5]
+gaussian_noise_prob: 0.5
+noise_range: [1, 30]
+poisson_scale_range: [0.05, 3]
+gray_noise_prob: 0.4
+jpeg_range: [30, 95]
+
+# the second degradation process
+second_blur_prob: 0.8
+resize_prob2: [0.3, 0.4, 0.3]  # up, down, keep
+resize_range2: [0.3, 1.2]
+gaussian_noise_prob2: 0.5
+noise_range2: [1, 25]
+poisson_scale_range2: [0.05, 2.5]
+gray_noise_prob2: 0.4
+jpeg_range2: [30, 95]
+
+gt_size: 128
+queue_size: 32
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DIV2K_reg
+    type: RealESRGANDataset
+    dataroot_gt: datasets/motion01/train
+    meta_info: datasets/motion01/meta_info/meta_info_test.txt
+    io_backend:
+      type: disk
+
+    blur_kernel_size: 21
+    kernel_list: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
+    kernel_prob: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
+    sinc_prob: 0.1
+    blur_sigma: [0.2, 3]
+    betag_range: [0.5, 4]
+    betap_range: [1, 2]
+
+    blur_kernel_size2: 21
+    kernel_list2: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
+    kernel_prob2: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
+    sinc_prob2: 0.1
+    blur_sigma2: [0.2, 1.5]
+    betag_range2: [0.5, 4]
+    betap_range2: [1, 2]
+
+    final_sinc_prob: 0.8
+
+    gt_size: 128
+    use_hflip: False
+    use_rot: False
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 16
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  # Uncomment these for validation
+  val:
+    name: validation
+    type: PairedImageDataset
+    dataroot_gt: datasets/motion01/run02/gt
+    dataroot_lq: datasets/motion01/run02/acc4
+    io_backend:
+      type: disk
+
+# path
+path:
+  pretrain_network_g: ~
+  param_key_g: params_ema
+  strict_load_g: true
+  resume_state: ~ #/data0/xtkong/Reflash Dropout/Real-ESRGAN/experiments/train_RealSRResNetx4_details_re3/training_states/380000.state
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: Adam
+    lr: !!float 2e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: CosineAnnealingRestartLR
+    periods: [20000, 40000]
+    restart_weights: [1,1]
+
+  total_iter: 40000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+# Uncomment these for validation
+# validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: True
+
+  metrics:
+    psnr: # metric name
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29506
