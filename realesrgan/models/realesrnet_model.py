@@ -78,6 +78,7 @@ class RealESRNetModel(SRModel):
             ori_h, ori_w = self.gt.size()[2:4]
             new_out = []
             for i in range(expand):
+                print(i)
                 if i == 0:
                     self.kernel1 = data['kernel1'].to(self.device)
                     self.kernel2 = data['kernel2'].to(self.device)
