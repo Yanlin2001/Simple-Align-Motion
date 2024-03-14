@@ -1,13 +1,14 @@
 # general settings
-name: train_RealSRResNetx4_dropoutlast_channel07
+name: train_RealSRResNetx1W1-reg
 model_type: RealESRNetModel
 scale: 1
 num_gpu: 1
 manual_seed: 0
+weight: 1e0
 
 # network structures
 network_g:
-  type: MSRResNet_details_dropoutlast_channel07
+  type: MSRResNet_detailss
   num_in_ch: 3
   num_out_ch: 3
   num_feat: 64
@@ -61,7 +62,7 @@ queue_size: 32
 # dataset and data loader settings
 datasets:
   train:
-    name: DIV2K
+    name: DIV2K_reg
     type: RealESRGANDataset
     dataroot_gt: datasets/motion01/train
     meta_info: datasets/motion01/meta_info/meta_info_test.txt
@@ -106,7 +107,6 @@ datasets:
     io_backend:
       type: disk
 
-
 # path
 path:
   pretrain_network_g: ~
@@ -142,6 +142,7 @@ train:
 val:
   val_freq: !!float 5e3
   save_img: True
+
   metrics:
     psnr: # metric name
       type: calculate_psnr

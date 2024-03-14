@@ -4,7 +4,6 @@ model_type: RealESRNetModel
 scale: 1
 num_gpu: 1
 manual_seed: 0
-weight: 1e3
 
 # network structures
 network_g:
@@ -18,6 +17,24 @@ network_g:
 # ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
 gt_usm: True  # USM the ground-truth
 #To remain the setting of Real-ESRGAN, we use the GT USM (sharpness) in the paper. But we also provide the trained models without USM, the improvement is basically same.
+
+# Motion process
+rician_noise_prob: 0.7
+rician_noise_range: [0.01, 0.1]
+rot90_prob: 1.0 # 旋转90度概率
+horizontal_mask_prob: 0.0
+undersample_prob: 0.8 # 降采样概率
+center_fraction_range: [0.05, 0.15] # 中心部分采样范围
+acceleration_range: [2, 6] # 加速范围
+rounds_range: [51,251] # 运动阶段数
+rotate_prob: 0.5 # 旋转概率
+rotate_range: [-1, 1] # 旋转角度范围
+translation_prob: [0.2, 0.2, 0.6] # un-down, left-right, keep
+translation_range: [-0.01, 0.01]  # 平移范围
+perspective_prob: [0.0, 0.0, 1.0]  # un-down, left-right, keep
+perspective_range: [-0.001, 0.001] # 透视范围
+stretch_prob: 0.0 # 伸缩概率
+stretch_range: [-0.001, 0.001] # 伸缩范围
 
 # the first degradation process
 resize_prob: [0.2, 0.7, 0.1]  # up, down, keep
@@ -39,7 +56,7 @@ gray_noise_prob2: 0.4
 jpeg_range2: [30, 95]
 
 gt_size: 128
-queue_size: 16
+queue_size: 32
 
 # dataset and data loader settings
 datasets:
@@ -70,13 +87,13 @@ datasets:
     final_sinc_prob: 0.8
 
     gt_size: 128
-    use_hflip: True
+    use_hflip: False
     use_rot: False
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 2
-    batch_size_per_gpu: 8
+    num_worker_per_gpu: 6
+    batch_size_per_gpu: 16
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -108,10 +125,10 @@ train:
 
   scheduler:
     type: CosineAnnealingRestartLR
-    periods: [250000, 500000]
+    periods: [20000, 40000]
     restart_weights: [1,1]
 
-  total_iter: 500000
+  total_iter: 40000
   warmup_iter: -1  # no warm up
 
   # losses
@@ -127,8 +144,12 @@ val:
   save_img: True
 
   metrics:
-    psnr:
+    psnr: # metric name
       type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
       crop_border: 4
       test_y_channel: false
 

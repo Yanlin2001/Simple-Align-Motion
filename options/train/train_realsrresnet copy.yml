@@ -1,10 +1,10 @@
 # general settings
-name: train_RealSRResNetx4-reg
+name: train_RealSRResNetx4
 model_type: RealESRNetModel
 scale: 1
 num_gpu: 1
 manual_seed: 0
-weight: 1e0
+weight: 1e3
 
 # network structures
 network_g:
@@ -18,24 +18,6 @@ network_g:
 # ----------------- options for synthesizing training data in RealESRNetModel ----------------- #
 gt_usm: True  # USM the ground-truth
 #To remain the setting of Real-ESRGAN, we use the GT USM (sharpness) in the paper. But we also provide the trained models without USM, the improvement is basically same.
-
-# Motion process
-rician_noise_prob: 0.0
-rician_noise_range: [0.0001, 0.0002]
-rot90_prob: 1.0 # 旋转90度概率
-horizontal_mask_prob: 0.0
-undersample_prob: 0.8 # 降采样概率
-center_fraction_range: [0.05, 0.15] # 中心部分采样范围
-acceleration_range: [2, 6] # 加速范围
-rounds_range: [51,251] # 运动阶段数
-rotate_prob: 0.5 # 旋转概率
-rotate_range: [-2, 2] # 旋转角度范围
-translation_prob: [0.2, 0.2, 0.6] # un-down, left-right, keep
-translation_range: [-0.01, 0.01]  # 平移范围
-perspective_prob: [0.0, 0.0, 1.0]  # un-down, left-right, keep
-perspective_range: [-0.001, 0.001] # 透视范围
-stretch_prob: 0.0 # 伸缩概率
-stretch_range: [-0.001, 0.001] # 伸缩范围
 
 # the first degradation process
 resize_prob: [0.2, 0.7, 0.1]  # up, down, keep
@@ -57,15 +39,15 @@ gray_noise_prob2: 0.4
 jpeg_range2: [30, 95]
 
 gt_size: 128
-queue_size: 32
+queue_size: 16
 
 # dataset and data loader settings
 datasets:
   train:
-    name: DIV2K_reg
+    name: DIV2K
     type: RealESRGANDataset
-    dataroot_gt: datasets/motion01/train
-    meta_info: datasets/motion01/meta_info/meta_info_test.txt
+    dataroot_gt: /code/RDSR/dataset/DIV2K/DIV2K_train_HR_sub
+    meta_info: /code/RDSR/dataset/DIV2K/meta_info_DIV2K800sub_GT.txt
     io_backend:
       type: disk
 
@@ -93,8 +75,8 @@ datasets:
 
     # data loader
     use_shuffle: true
-    num_worker_per_gpu: 6
-    batch_size_per_gpu: 16
+    num_worker_per_gpu: 2
+    batch_size_per_gpu: 8
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -102,10 +84,11 @@ datasets:
   val:
     name: validation
     type: PairedImageDataset
-    dataroot_gt: datasets/motion01/run02/gt
-    dataroot_lq: datasets/motion01/run02/acc4
+    dataroot_gt: /code/RDSR/dataset/benchmark/Set5/GTmod12
+    dataroot_lq: /code/RDSR/dataset/benchmark/Set5/LRbicx4
     io_backend:
       type: disk
+
 
 # path
 path:
@@ -125,10 +108,10 @@ train:
 
   scheduler:
     type: CosineAnnealingRestartLR
-    periods: [15000, 30000]
+    periods: [250000, 500000]
     restart_weights: [1,1]
 
-  total_iter: 30000
+  total_iter: 500000
   warmup_iter: -1  # no warm up
 
   # losses
@@ -144,12 +127,8 @@ val:
   save_img: True
 
   metrics:
-    psnr: # metric name
+    psnr:
       type: calculate_psnr
-      crop_border: 4
-      test_y_channel: false
-    ssim:
-      type: calculate_ssim
       crop_border: 4
       test_y_channel: false
 
