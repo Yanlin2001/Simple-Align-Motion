@@ -35,7 +35,8 @@ class RealESRNetModel(SRModel):
         self.usm_sharpener = USMSharp().cuda()
         self.queue_size = opt['queue_size']
         self.name = opt['name']
-        self.weight = float(opt['weight'])
+        if 'reg' in self.name:
+            self.weight = float(opt['weight'])
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self):
