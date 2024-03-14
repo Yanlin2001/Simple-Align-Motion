@@ -172,7 +172,7 @@ class RealESRNetModel(SRModel):
                     mode = random.choice(['area', 'bilinear', 'bicubic'])
                     out = F.interpolate(out, size=(ori_h // self.opt['scale'], ori_w // self.opt['scale']), mode=mode)
                     out = filter2D(out, self.sinc_kernel)
-                    print(out.shape)
+                print(out.shape)
                 new_out.append(out)
             out = torch.concat(new_out)
             print(out.shape)
