@@ -94,7 +94,7 @@ class RealESRNetModel(SRModel):
             width, height = self.gt.size()[-1], self.gt.size()[-2]
             new_out = []
             for i in range(expand):
-                print(i)
+                # print(i)
                 if i == 0:
                     self.kernel1 = data['kernel1'].to(self.device)
                     self.kernel2 = data['kernel2'].to(self.device)
@@ -271,10 +271,9 @@ class RealESRNetModel(SRModel):
                 out = out.repeat(1, 3, 1, 1)
                 #print(out.shape) # torch.Size([8, 3, 400, 400])
                 new_out.append(out)
-                print('shape:', out.shape)
+                #print('shape:', out.shape)
 
             out = torch.concat(new_out)
-            print('out_shape:', out.shape)
             #print(out.shape) # torch.Size([8, 3, 400, 400])
             self.gt = self.gt.repeat(expand, 1, 1, 1)
             # clamp and round
@@ -285,7 +284,7 @@ class RealESRNetModel(SRModel):
             self.gt, self.lq = paired_random_crop(self.gt, self.lq, gt_size, self.opt['scale'])
 
             # training pair pool
-            self._dequeue_and_enqueue()
+            # self._dequeue_and_enqueue()
         else:
             self.lq = data['lq'].to(self.device)
             if 'gt' in data:
